@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>qBlockly</title>
+    <script src="block/blockly_compressed.js"></script>
+    <script src="block/blocks_compressed.js"></script>
+    <script src="msg/messages.js"></script>
+    <script src="generators/python_compressed.js"></script>
+    <script src="generators/lua_compressed.js"></script>
+    <script src="generators/javascript_compressed.js"></script>
+    <script src="block/turtle_blocks.js"></script>
+    <script src="generators/turtle_generators.js"></script>
+    <script src="block/pygame_blocks.js"></script>
+    <script src="generators/pygame_generators.js"></script>
+    <script src="block/variables_block.js"></script>
+    <script src="generators/variables_generators.js"></script>
+    <script src="msg/zh-hans.js"></script>
+    <script src="msg/js/zh-hans.js"></script>
+    <script src="qwebchannel.js"></script>
+    <style>
+        html, body {
+            height: 100%;       /* 确保根元素高度继承 */
+            margin: 0;          /* 消除默认边距 */
+            overflow: hidden;   /* 隐藏滚动条 */
+        }
+        #blocklyArea {
+            height: 100vh;      /* 占满视口高度 */
+            width: 100%;        /* 占满视口宽度 */
+        }
+        #blocklyDiv {
+            position: absolute; /* 绝对定位以覆盖 blocklyArea */
+        }
+    </style>
+    <script>
+        // category 栏翻译
+        for (var messageKey in MSG)
+        {
+            if (messageKey.indexOf('cat') == 0)
+            {
+                Blockly.Msg[messageKey.toUpperCase()] = MSG[messageKey];
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <div id="blocklyArea"></div>
+    <div id="blocklyDiv"></div>
+
+    <xml id="toolbox" style="display: none">
+        <category name="%{BKY_CATLOGIC}" colour="%{BKY_LOGIC_HUE}">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_negate"></block>
+            <block type="logic_boolean"></block>
+            <block type="logic_null"></block>
+            <block type="logic_ternary"></block>
+        </category>
+
+        <category name="%{BKY_CATLOOPS}" colour="%{BKY_LOOPS_HUE}">
+            <block type="controls_repeat_ext">
+                <value name="TIMES">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_for">
+                <value name="FROM">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="TO">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="BY">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="controls_forEach"></block>
+            <block type="controls_flow_statements"></block>
+        </category>
+
+        <category name="%{BKY_CATMATH}" colour="%{BKY_MATH_HUE}">
+            <block type="math_number"></block>
+            <block type="math_arithmetic">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_single">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">9</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_trig">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">45</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_constant"></block>
+            <block type="math_number_property">
+                <value name="NUMBER_TO_CHECK">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_round">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">3.1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_on_list"></block>
+            <block type="math_modulo">
+                <value name="DIVIDEND">
+                    <shadow type="math_number">
+                        <field name="NUM">64</field>
+                    </shadow>
+                </value>
+                <value name="DIVISOR">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_constrain">
+                <value name="VALUE">
+                    <shadow type="math_number">
+                        <field name="NUM">50</field>
+                    </shadow>
+                </value>
+                <value name="LOW">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="HIGH">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_random_int">
+                <value name="FROM">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="TO">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_random_float"></block>
+        </category>
+
+        <category name="%{BKY_CATTEXT}" colour="%{BKY_TEXTS_HUE}">
+            <block type="text"></block>
+            <block type="text_join"></block>
+            <block type="text_append">
+                <value name="TEXT">
+                    <shadow type="text"></shadow>
+                </value>
+            </block>
+            <block type="text_length">
+                <value name="VALUE">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_isEmpty">
+                <value name="VALUE">
+                    <shadow type="text">
+                        <field name="TEXT"></field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_indexOf">
+                <value name="VALUE">
+                    <block type="variables_get">
+                        <field name="VAR">{textVariable}</field>
+                    </block>
+                </value>
+                <value name="FIND">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_charAt">
+                <value name="VALUE">
+                    <block type="variables_get">
+                        <field name="VAR">{textVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="text_getSubstring">
+                <value name="STRING">
+                    <block type="variables_get">
+                        <field name="VAR">{textVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="text_changeCase">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_trim">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_print">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="text_prompt_ext">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+        </category>
+
+        <category name="%{BKY_CATLISTS}" colour="%{BKY_LISTS_HUE}">
+            <block type="lists_create_with">
+                <mutation items="0"></mutation>
+            </block>
+            <block type="lists_create_with"></block>
+            <block type="lists_repeat">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">5</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="lists_length"></block>
+            <block type="lists_isEmpty"></block>
+            <block type="lists_indexOf">
+                <value name="VALUE">
+                    <block type="variables_get">
+                        <field name="VAR">{listVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="lists_getIndex">
+                <value name="VALUE">
+                    <block type="variables_get">
+                        <field name="VAR">{listVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="lists_setIndex">
+                <value name="LIST">
+                    <block type="variables_get">
+                        <field name="VAR">{listVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="lists_getSublist">
+                <value name="LIST">
+                    <block type="variables_get">
+                        <field name="VAR">{listVariable}</field>
+                    </block>
+                </value>
+            </block>
+            <block type="lists_split">
+                <value name="DELIM">
+                    <shadow type="text">
+                        <field name="TEXT">,</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="lists_sort"></block>
+        </category>
+
+        
+        <sep></sep>
+        <category name="%{BKY_CATVARIABLES}" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+        <category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
+
+        <category name="turtle" colour="330">
+            <block type="import_turtle"></block>
+            <block type="turtle_penshape"></block>
+            <block type="turtle_move"></block>
+            <block type="turtle_speed"></block>
+            <block type="turtle_turn"></block>
+            <block type="turtle_pen"></block>
+            <block type="turtle_pensize"></block>
+            <block type="turtle_pencolour"></block>
+            <block type="turtle_penhide"></block>
+            <block type="turtle_stamp"></block>
+            <block type="turtle_fillcolour"></block>
+            <block type="turtle_fillbegin"></block>
+            <block type="turtle_fillend"></block>
+            <block type="turtle_write"></block>
+            <block type="turtle_drawcircle"></block>
+            <block type="turtle_goto"></block>
+            <block type="turtle_home"></block>
+            <block type="turtle_undo"></block>
+            <block type="turtle_clear"></block>
+            <block type="turtle_dot"></block>
+            <block type="turtle_done"></block>
+        </category>
+    </xml>
+
+
+      <script>
+        var toolboxText = document.getElementById('toolbox').outerHTML;
+        toolboxText = toolboxText.replace(/(^|[^%]){(\w+)}/g,
+        function(m, p1, p2) {return p1 + MSG[p2];});
+        var toolboxXml = Blockly.utils.xml.textToDom(toolboxText);
+
+        var workspace = Blockly.inject(
+            'blocklyDiv',
+            {
+                toolbox: toolboxXml,
+
+                grid:   // 栅格
+                {
+                    spacing: 20,
+                    length: 3,
+                    colour: '#ccc',
+                    snap: true
+                },
+
+                move:   // 移动
+                {
+                    scrollbars:
+                    {
+                        horizontal: true,
+                        vertical: true
+                    },
+                    drag: true,
+                    wheel: false
+                },
+
+                zoom:   // 缩放
+                {
+                    controls: true,
+                    wheel: true,
+                    startScale: 1.0,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                },
+                media: 'media/',  // 图标及音效
+
+                trashcan: true
+            }
+         );
+      </script>
+      <script>
+        var blocklyArea = document.getElementById('blocklyArea');
+        var blocklyDiv = document.getElementById('blocklyDiv');
+      
+        // 动态调整函数
+        var updateBlocklySize = function() {
+          // 计算 blocklyArea 的绝对坐标
+          var x = 0, y = 0;
+          var element = blocklyArea;
+          do {
+            x += element.offsetLeft;
+            y += element.offsetTop;
+            element = element.offsetParent;
+          } while (element);
+      
+          // 将 blocklyDiv 覆盖到 blocklyArea 上
+          blocklyDiv.style.left = x + 'px';
+          blocklyDiv.style.top = y + 'px';
+          blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+          blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+      
+          // 触发 Blockly 重绘
+          Blockly.svgResize(workspace);
+        };
+      
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateBlocklySize);
+        // 初始化时调用一次
+        updateBlocklySize();
+      </script>
+
+<script>
+    var webobj;
+    new QWebChannel(qt.webChannelTransport,
+    function(channel)
+    {
+        webobj = channel.objects.webobj;
+        webobj.saveStateSignal.connect(function()
+            {
+                var state = Blockly.serialization.workspaces.save(workspace);
+                webobj.saveState(state);
+            });
+        webobj.loadStateSignal.connect(function(loadstate)
+            {
+                var state = loadstate;
+                Blockly.serialization.workspaces.load(state, workspace);
+            });
+    });
+</script>
+
+<script>
+    function updateCode(event) {
+        Blockly.Python.INFINITE_LOOP_TRAP = null;
+        let code = Blockly.Python.workspaceToCode(workspace);
+        webobj.setContent(code);
+    }
+    //webobj.contentChanged.connect(updateCode);
+    workspace.addChangeListener(updateCode);
+</script>
+
+</body>
+</html>
